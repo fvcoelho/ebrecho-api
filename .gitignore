@@ -1,0 +1,148 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build
+dist/
+build/
+out/
+.next/
+.vercel/
+.serverless/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/migrations/dev/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+.fleet/
+
+# Testing
+coverage/
+.nyc_output/
+junit.xml
+test-results/
+
+# Uploads and static files
+uploads/
+tmp/
+temp/
+public/uploads/
+
+# TypeScript
+*.tsbuildinfo
+.tscache/
+
+# Package manager locks (keep one, ignore others based on your preference)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Serverless
+.serverless/
+.webpack/
+.dynamodb/
+
+# AWS
+.aws-sam/
+samconfig.toml
+
+# Debug
+.vscode/launch.json
+.vscode/settings.json
+debug/
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+.cache/
+.parcel-cache/
+.nuxt/
+.docusaurus/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.cer
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Documentation build
+docs/_build/
+docs/.vuepress/dist/
+
+# Python (if any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Ruby (if any Ruby scripts)
+*.gem
+*.rbc
+.bundle/
+vendor/bundle/
+
+# Terraform (if using infrastructure as code)
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+
+# Docker
+docker-compose.override.yml
+.dockerignore.local
+.vercel
