@@ -1,0 +1,15 @@
+Olá, {{name}}!
+
+Bem-vindo ao eBrecho! Para completar seu cadastro, você precisa verificar seu endereço de email.
+
+Clique no link abaixo para verificar seu email:
+{{verificationUrl}}
+
+Este link expira em 24 horas. Se você não solicitou esta verificação, pode ignorar este email.
+
+Atenciosamente,
+Equipe eBrecho
+
+---
+eBrecho - Marketplace para Brechós
+Este é um email automático, não responda esta mensagem.

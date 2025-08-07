@@ -1,0 +1,33 @@
+name: ebrecho-api
+region: nyc
+services:
+- name: api
+  source_dir: /api
+  github:
+    repo: fvcoelho/ebrecho
+    branch: start-front-end
+  run_command: npm run start:prod
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+  health_check:
+    http_path: /health
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+  - key: DATABASE_URL
+    value: ${db.DATABASE_URL}
+  - key: JWT_SECRET
+    value: ${JWT_SECRET}
+  - key: FRONTEND_URL
+    value: ${FRONTEND_URL}
+
+databases:
+- name: db
+  engine: PG
+  version: "14"
+  size: basic

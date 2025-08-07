@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificação de Email - eBrecho</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background-color: #ffffff; padding: 30px; border: 1px solid #e9ecef; }
+    .footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #6c757d; }
+    .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    .button:hover { background-color: #0056b3; }
+    .warning { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 style="margin: 0; color: #007bff;">eBrecho</h1>
+      <p style="margin: 5px 0 0 0;">Marketplace para Brechós</p>
+    </div>
+    
+    <div class="content">
+      <h2>Olá, {{name}}!</h2>
+      
+      <p>Bem-vindo ao eBrecho! Para completar seu cadastro e começar a usar nossa plataforma, você precisa verificar seu endereço de email.</p>
+      
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="{{verificationUrl}}" class="button">Verificar Email</a>
+      </p>
+      
+      <p>Ou copie e cole o link abaixo em seu navegador:</p>
+      <p style="word-break: break-all; color: #007bff;">{{verificationUrl}}</p>
+      
+      <div class="warning">
+        <strong>⚠️ Importante:</strong> Este link expira em 24 horas. Se você não solicitou esta verificação, pode ignorar este email.
+      </div>
+      
+      <p>Se você tiver alguma dúvida, entre em contato conosco.</p>
+      
+      <p>Atenciosamente,<br>Equipe eBrecho</p>
+    </div>
+    
+    <div class="footer">
+      <p>&copy; 2024 eBrecho - Marketplace para Brechós. Todos os direitos reservados.</p>
+      <p>Este é um email automático, não responda esta mensagem.</p>
+    </div>
+  </div>
+</body>
+</html>
