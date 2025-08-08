@@ -99,7 +99,7 @@ export const completePartnerRegistration = async (
       console.log('completePartnerRegistration: Existing partner data:', {
         id: existingPartner.id,
         email: existingPartner.email,
-        document: existingPartner.document
+        document: document
       });
     }
 
