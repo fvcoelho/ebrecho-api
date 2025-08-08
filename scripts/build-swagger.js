@@ -1,7 +1,31 @@
-import swaggerJsdoc from 'swagger-jsdoc';
-import { version } from '../../package.json';
+#!/usr/bin/env node
 
-const options: swaggerJsdoc.Options = {
+/**
+ * Pre-build Swagger Generation Script
+ * Extracts @swagger comments from TypeScript files and generates OpenAPI spec
+ * This ensures production has same documentation as development
+ */
+
+const fs = require('fs');
+const path = require('path');
+const glob = require('glob');
+const swaggerJsdoc = require('swagger-jsdoc');
+
+// Import the base swagger configuration
+const configPath = path.join(__dirname, '../src/config/swagger.config.ts');
+
+console.log('🔧 Building Swagger documentation...');
+
+// Read TypeScript config to get the base options
+// We'll extract the options manually since we can't import TS directly in Node
+const configContent = fs.readFileSync(configPath, 'utf8');
+
+// Extract version from package.json
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+const version = packageJson.version;
+
+// Define swagger-jsdoc options (replicated from swagger.config.ts)
+const options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -406,17 +430,7 @@ const options: swaggerJsdoc.Options = {
       }
     ]
   },
-  apis: process.env.VERCEL ? [
-    // In Vercel, try both possible locations
-    './src/routes/*.js',
-    './src/routes/**/*.js', 
-    './src/controllers/*.js',
-    './src/schemas/*.js',
-    './dist/src/routes/*.js',
-    './dist/src/routes/**/*.js',
-    './dist/src/controllers/*.js',
-    './dist/src/schemas/*.js'
-  ] : [
+  apis: [
     './src/routes/*.ts',
     './src/routes/**/*.ts',
     './src/controllers/*.ts',
@@ -424,34 +438,39 @@ const options: swaggerJsdoc.Options = {
   ]
 };
 
-// Generate swagger spec - handle both dev and production
-let swaggerSpecGenerated;
-
-if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-  // In production/Vercel: Load pre-generated swagger spec
-  try {
-    const fs = require('fs');
-    const path = require('path');
-    const preGeneratedPath = path.join(__dirname, '../../dist/swagger-spec.json');
-    
-    if (fs.existsSync(preGeneratedPath)) {
-      console.log('📋 Loading pre-generated swagger spec from:', preGeneratedPath);
-      swaggerSpecGenerated = JSON.parse(fs.readFileSync(preGeneratedPath, 'utf8'));
-      console.log(`✅ Loaded ${Object.keys(swaggerSpecGenerated.paths || {}).length} documented endpoints`);
-    } else {
-      console.warn('⚠️  Pre-generated swagger spec not found, falling back to runtime generation');
-      throw new Error('Pre-generated spec not found');
-    }
-  } catch (error) {
-    console.warn('⚠️  Failed to load pre-generated spec, using runtime generation:', error.message);
-    swaggerSpecGenerated = swaggerJsdoc(options);
+try {
+  console.log('📄 Scanning TypeScript files for @swagger documentation...');
+  
+  // Generate swagger spec using the same method as development
+  const swaggerSpec = swaggerJsdoc(options);
+  
+  // Count paths found
+  const pathCount = Object.keys(swaggerSpec.paths || {}).length;
+  console.log(`📋 Found ${pathCount} documented API endpoints`);
+  
+  // Ensure dist directory exists
+  const distDir = path.join(__dirname, '../dist');
+  if (!fs.existsSync(distDir)) {
+    fs.mkdirSync(distDir, { recursive: true });
   }
-} else {
-  // In development: Use runtime file scanning
-  console.log('🔧 Development mode: scanning TypeScript files for @swagger documentation');
-  swaggerSpecGenerated = swaggerJsdoc(options);
-  const pathCount = Object.keys(swaggerSpecGenerated.paths || {}).length;
-  console.log(`📋 Found ${pathCount} documented API endpoints in development`);
+  
+  // Write the generated spec to dist/swagger-spec.json
+  const outputPath = path.join(distDir, 'swagger-spec.json');
+  fs.writeFileSync(outputPath, JSON.stringify(swaggerSpec, null, 2));
+  
+  console.log(`✅ Swagger spec generated successfully: ${outputPath}`);
+  console.log(`📊 Total paths documented: ${pathCount}`);
+  
+  // List the documented paths for verification
+  if (swaggerSpec.paths) {
+    console.log('📋 Documented endpoints:');
+    Object.keys(swaggerSpec.paths).forEach(path => {
+      const methods = Object.keys(swaggerSpec.paths[path]);
+      console.log(`  ${methods.map(m => m.toUpperCase()).join(', ')} ${path}`);
+    });
+  }
+  
+} catch (error) {
+  console.error('❌ Failed to generate swagger spec:', error);
+  process.exit(1);
 }
-
-export const swaggerSpec = swaggerSpecGenerated;

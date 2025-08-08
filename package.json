@@ -10,7 +10,7 @@
     "build": "tsc",
     "build:prod": "npm run prebuild && tsc --sourceMap false",
     "build:serverless": "npm run prebuild && tsc && cp -r node_modules/.prisma dist/",
-    "build:vercel": "npm run prisma:generate && tsc",
+    "build:vercel": "npm run prisma:generate && node scripts/build-swagger.js && tsc",
     "start": "node dist/src/server.js",
     "start:prod": "NODE_ENV=production node dist/src/server.js",
     "start:serverless": "serverless offline start",

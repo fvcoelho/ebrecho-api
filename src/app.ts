@@ -72,12 +72,95 @@ app.use(express.urlencoded({ extended: true }));
 const uploadDir = process.env.UPLOAD_DIR || './uploads';
 app.use('/uploads', express.static(path.resolve(uploadDir)));
 
-// Swagger documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'eBrecho API Documentation',
-  customfavIcon: '/favicon.ico'
-}));
+// Swagger documentation - manual HTML with multiple CDN fallbacks
+app.get('/api-docs', (req, res) => {
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>eBrecho API Documentation</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.15.5/swagger-ui.css" />
+  <style>
+    body { margin: 0; font-family: sans-serif; }
+    .swagger-ui .topbar { display: none; }
+    #loading { text-align: center; padding: 50px; font-size: 18px; color: #666; }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading API Documentation...</div>
+  <div id="swagger-ui"></div>
+  <script>
+    let retryCount = 0;
+    const maxRetries = 20;
+    
+    // Function to initialize Swagger UI
+    function initSwagger() {
+      if (typeof SwaggerUIBundle !== 'undefined') {
+        document.getElementById('loading').style.display = 'none';
+        SwaggerUIBundle({
+          url: '/api-docs.json',
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.presets.standalone
+          ],
+          plugins: [
+            SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: "BaseLayout"
+        });
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(initSwagger, 200);
+      } else {
+        document.getElementById('loading').innerHTML = 'Error loading Swagger UI. Please refresh the page.';
+      }
+    }
+    
+    // Load Swagger UI bundle script with fallback
+    function loadSwaggerScript() {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.15.5/swagger-ui-bundle.js';
+      script.onload = function() {
+        setTimeout(initSwagger, 100);
+      };
+      script.onerror = function() {
+        // Fallback to unpkg CDN
+        const fallbackScript = document.createElement('script');
+        fallbackScript.src = 'https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js';
+        fallbackScript.onload = function() {
+          setTimeout(initSwagger, 100);
+        };
+        fallbackScript.onerror = function() {
+          document.getElementById('loading').innerHTML = 'Error loading Swagger UI from CDN. Please refresh the page.';
+        };
+        document.head.appendChild(fallbackScript);
+      };
+      document.head.appendChild(script);
+    }
+    
+    // Start loading when page is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadSwaggerScript);
+    } else {
+      loadSwaggerScript();
+    }
+  </script>
+</body>
+</html>`;
+  
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+});
+
+app.get('/api-docs/', (req, res) => {
+  res.redirect('/api-docs');
+});
+
+// Handle favicon requests to avoid 500 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).send(); // No content
+});
 
 // Serve Swagger JSON
 app.get('/api-docs.json', (req, res) => {
