@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import swaggerUi from 'swagger-ui-express';
 import { prisma } from './prisma';
+import { swaggerSpec } from './config/swagger.config';
 import authRoutes from './routes/auth.routes';
 import partnerRoutes from './routes/partner.routes';
 import addressRoutes from './routes/address.routes';
@@ -37,6 +39,7 @@ app.use(cors({
     // List of allowed origins
     const allowedOrigins = [
       'http://localhost:3000',
+      'http://localhost:3001', // Allow Swagger UI
       'http://localhost:8080',
       process.env.FRONTEND_URL,
       process.env.NEXT_PUBLIC_APP_URL,
@@ -48,7 +51,8 @@ app.use(cors({
       'https://ebrecho.com.br',
       'https://www.ebrecho.com.br',
       'https://dev.ebrecho.com.br',
-      'http://dev.ebrecho.com.br'
+      'http://dev.ebrecho.com.br',
+      'https://api.ebrecho.com.br' // Allow production Swagger UI
     ].filter(Boolean); // Remove undefined values
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -67,6 +71,19 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files (uploaded images)
 const uploadDir = process.env.UPLOAD_DIR || './uploads';
 app.use('/uploads', express.static(path.resolve(uploadDir)));
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'eBrecho API Documentation',
+  customfavIcon: '/favicon.ico'
+}));
+
+// Serve Swagger JSON
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 
 // Health check route
 app.get('/health', async (req, res) => {
