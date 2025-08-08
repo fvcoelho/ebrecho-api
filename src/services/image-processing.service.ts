@@ -44,13 +44,17 @@ export class ImageProcessingService {
   private readonly tryonDir: string;
 
   constructor() {
-    this.uploadDir = process.env.UPLOAD_DIR || './uploads';
+    // Use /tmp directory for serverless environments
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    this.uploadDir = isServerless ? '/tmp/uploads' : (process.env.UPLOAD_DIR || './uploads');
     this.processedDir = path.join(this.uploadDir, 'processed');
     this.thumbnailDir = path.join(this.uploadDir, 'thumbnails');
     this.tryonDir = path.join(this.uploadDir, 'tryon');
     
-    // Ensure directories exist
-    this.ensureDirectories();
+    // Only try to create directories in non-serverless environments
+    if (!isServerless) {
+      this.ensureDirectories();
+    }
   }
 
   private ensureDirectories() {
@@ -61,12 +65,24 @@ export class ImageProcessingService {
     });
   }
 
+  private async ensureDirectoryExists(dir: string) {
+    try {
+      await fsPromises.access(dir);
+    } catch {
+      await fsPromises.mkdir(dir, { recursive: true });
+    }
+  }
+
   async processProductImage(
     filePath: string,
     filename: string,
     options: ImageProcessingOptions = {}
   ): Promise<ProcessedImageResult> {
     try {
+      // Ensure directories exist when actually processing
+      await this.ensureDirectoryExists(this.processedDir);
+      await this.ensureDirectoryExists(this.thumbnailDir);
+      
       const originalPath = filePath;
       const baseFilename = path.parse(filename).name;
       
@@ -196,6 +212,9 @@ export class ImageProcessingService {
   ): Promise<DownloadedImageResult> {
     try {
       console.log(`[ImageProcessingService] Downloading image from URL: ${imageUrl}`);
+      
+      // Ensure tryon directory exists when actually downloading
+      await this.ensureDirectoryExists(this.tryonDir);
       
       // Generate unique filename
       const timestamp = Date.now();

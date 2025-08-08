@@ -10,6 +10,8 @@ out/
 .next/
 .vercel/
 .serverless/
+api/*.js
+api/*.js.map
 
 # Environment variables
 .env
