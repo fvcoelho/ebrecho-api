@@ -12,10 +12,16 @@ export interface EmailConfig {
 }
 
 export class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null = null;
   private from: string;
+  private initialized = false;
 
   constructor() {
+    this.from = `${process.env.FROM_NAME || 'eBrecho'} <${process.env.FROM_EMAIL || 'noreply@ebrecho.com.br'}>`;
+  }
+
+  private initialize() {
+    if (this.initialized) return;
 
     console.log('🔧 Initializing Email Service...');
     console.log('📧 Using SMTP settings:');
@@ -28,44 +34,32 @@ export class EmailService {
     
     this.from = `${process.env.FROM_NAME || 'eBrecho'} <${process.env.FROM_EMAIL || 'noreply@ebrecho.com.br'}>`;
 
-    //if (process.env.NODE_ENV === 'development') {
-
-      // For development, use a fake SMTP server or log emails
-      //this.transporter = nodemailer.createTransport({
-      //  host: 'smtp.ethereal.email',
-      //  port: 587,
-      //  auth: {
-      //    user: 'ethereal.user@ethereal.email',
-      //    pass: 'ethereal.pass'
-      //  }
-      //});
-
-    //} else {
-
-      // For production, use real SMTP settings
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587'),
-        secure: process.env.SMTP_PORT === '465', // true for 465 (SSL), false for 587 (STARTTLS)
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
-        },
-        tls: {
-          // Do not fail on invalid certificates
-          rejectUnauthorized: false,
-          // Enable STARTTLS for port 587
-          ciphers: 'SSLv3'
-        }
-      });
+    // For production, use real SMTP settings
+    this.transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465', // true for 465 (SSL), false for 587 (STARTTLS)
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      },
+      tls: {
+        // Do not fail on invalid certificates
+        rejectUnauthorized: false,
+        // Enable STARTTLS for port 587
+        ciphers: 'SSLv3'
+      }
+    });
       
-    //}
+    this.initialized = true;
     
     // Test connection on initialization
     this.testConnection();
   }
   
   private async testConnection(): Promise<void> {
+    if (!this.transporter) return;
+    
     try {
       await this.transporter.verify();
       console.log('✅ Email service connected successfully');
@@ -98,6 +92,9 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string, name: string): Promise<void> {
+    this.initialize();
+    if (!this.transporter) throw new Error('Email service not initialized');
+
     const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verificar-email?token=${token}`;
     
     // Load templates with variables
@@ -151,6 +148,39 @@ export class EmailService {
       }
       
       throw new Error('Falha ao enviar email de verificação');
+    }
+  }
+
+  async sendTestEmail(
+    email: string, 
+    subject: string, 
+    textContent: string, 
+    htmlContent: string
+  ): Promise<{ messageId: string; response?: string }> {
+    this.initialize();
+    if (!this.transporter) throw new Error('Email service not initialized');
+
+    const mailOptions = {
+      from: this.from,
+      to: email,
+      subject,
+      text: textContent,
+      html: htmlContent
+    };
+
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      console.log('📧 Test email sent successfully');
+      console.log('📧 Message ID:', info.messageId);
+      console.log('📧 Response:', info.response);
+      
+      return {
+        messageId: info.messageId,
+        response: info.response
+      };
+    } catch (error: any) {
+      console.error('❌ Error sending test email:', error);
+      throw error;
     }
   }
 

@@ -402,7 +402,7 @@ const options: swaggerJsdoc.Options = {
       },
       {
         name: 'System',
-        description: 'System health and status'
+        description: 'System administration and testing endpoints'
       }
     ]
   },

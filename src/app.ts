@@ -22,6 +22,7 @@ import publicRoutes from './routes/public';
 import userRoutes from './routes/user.routes';
 import orderRoutes from './routes/order.routes';
 import customerRoutes from './routes/customer.routes';
+import systemRoutes from './routes/system.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 // Load environment variables
@@ -379,7 +380,7 @@ app.get('/', (req, res) => {
       </div>
       <div class="info-item">
         <span class="info-label">API Endpoints</span>
-        <span class="info-value">22 documented</span>
+        <span class="info-value">23 documented</span>
       </div>
     </div>
 
@@ -443,6 +444,9 @@ app.use('/api/test-upload', testUploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
+
+// System API Routes (admin auth required)
+app.use('/api/system', systemRoutes);
 
 // Public API Routes (no auth required)
 app.use('/api/public', publicRoutes);
