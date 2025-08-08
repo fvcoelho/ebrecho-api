@@ -17,9 +17,18 @@ export const getPartnerDashboardStats = async (
     
     if (!partnerId) {
       console.log('[Dashboard] No partner ID found for user');
+      console.log('[Dashboard] User data:', JSON.stringify({
+        userId: req.user?.userId,
+        email: req.user?.email,
+        role: req.user?.role,
+        partnerId: req.user?.partnerId
+      }, null, 2));
+      
       return res.status(403).json({
         success: false,
-        error: 'User is not associated with a partner'
+        error: 'User is not associated with a partner',
+        message: 'Your authentication token may be outdated. Please complete the partner setup or log in again to refresh your token.',
+        hint: 'If you just completed partner setup, the new token should be in the response. Update your authorization header with the new token.'
       });
     }
 
@@ -591,9 +600,19 @@ export const getCurrentPartner = async (
     const partnerId = req.user!.partnerId;
     
     if (!partnerId) {
+      console.log('[Dashboard] No partner ID for getCurrentPartner');
+      console.log('[Dashboard] User data:', JSON.stringify({
+        userId: req.user?.userId,
+        email: req.user?.email,
+        role: req.user?.role,
+        partnerId: req.user?.partnerId
+      }, null, 2));
+      
       return res.status(403).json({
         success: false,
-        error: 'User is not associated with a partner'
+        error: 'User is not associated with a partner',
+        message: 'Your authentication token may be outdated. Please complete the partner setup or log in again to refresh your token.',
+        hint: 'If you just completed partner setup, the new token should be in the response. Update your authorization header with the new token.'
       });
     }
 
@@ -641,9 +660,19 @@ export const updateCurrentPartner = async (
     const updateData = req.body;
     
     if (!partnerId) {
+      console.log('[Dashboard] No partner ID for updateCurrentPartner');
+      console.log('[Dashboard] User data:', JSON.stringify({
+        userId: req.user?.userId,
+        email: req.user?.email,
+        role: req.user?.role,
+        partnerId: req.user?.partnerId
+      }, null, 2));
+      
       return res.status(403).json({
         success: false,
-        error: 'User is not associated with a partner'
+        error: 'User is not associated with a partner',
+        message: 'Your authentication token may be outdated. Please complete the partner setup or log in again to refresh your token.',
+        hint: 'If you just completed partner setup, the new token should be in the response. Update your authorization header with the new token.'
       });
     }
 

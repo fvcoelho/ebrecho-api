@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../prisma';
 import { generateToken } from '../utils/jwt.utils';
 import { LoginInput, RegisterInput, UpdateProfileInput, VerifyEmailInput, ResendVerificationInput } from '../schemas/auth.schema';
-import { LoginResponse, JWTPayload } from '../types';
+import { LoginResponse, JWTPayload, AuthRequest } from '../types';
 import { emailService } from '../utils/email.utils';
 
 export const login = async (
@@ -367,6 +367,50 @@ export const resendVerification = async (
     res.json({
       success: true,
       message: 'Email de verificação enviado com sucesso',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user!.userId;
+    
+    // Get fresh user data from database
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        partner: true,
+      },
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        error: 'Usuário não encontrado ou inativo',
+      });
+    }
+
+    // Generate new token with updated user data (including partnerId)
+    const token = generateToken(user);
+
+    // Remove password from response
+    const { password: _, ...userWithoutPassword } = user;
+
+    const response: LoginResponse = {
+      user: userWithoutPassword,
+      token,
+    };
+
+    res.json({
+      success: true,
+      data: response,
+      message: 'Token atualizado com sucesso',
     });
   } catch (error) {
     next(error);

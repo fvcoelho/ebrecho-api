@@ -239,6 +239,42 @@ router.put('/me', authenticate, validate(updateProfileSchema), authController.up
 
 /**
  * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Refresh JWT token
+ *     description: Get a new JWT token with updated user data (including partnerId)
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       $ref: '#/components/schemas/User'
+ *                     token:
+ *                       type: string
+ *                       description: New JWT token with updated user data
+ *                 message:
+ *                   type: string
+ *                   example: Token atualizado com sucesso
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post('/refresh', authenticate, authController.refreshToken);
+
+/**
+ * @swagger
  * /api/auth/logout:
  *   post:
  *     summary: User logout
