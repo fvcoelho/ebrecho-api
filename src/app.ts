@@ -168,6 +168,235 @@ app.get('/api-docs.json', (req, res) => {
   res.send(swaggerSpec);
 });
 
+// Welcome screen - API root endpoint
+app.get('/', (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get('host')}`;
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>eBrecho API</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      color: #333;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .logo {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #10b981;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-bottom: 30px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .link-group {
+      border-left: 3px solid #667eea;
+      padding-left: 15px;
+    }
+    .link-title {
+      font-size: 0.8rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      padding: 8px 0;
+    }
+    a:hover {
+      color: #764ba2;
+      transform: translateX(5px);
+    }
+    .arrow {
+      font-size: 0.9rem;
+    }
+    .info {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .info-item:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .info-value {
+      color: #333;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    .footer {
+      text-align: center;
+      color: #999;
+      font-size: 0.8rem;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .footer a {
+      color: #667eea;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <div class="logo">👗</div>
+      eBrecho API
+    </h1>
+    <p class="subtitle">Second-hand Fashion Marketplace Platform</p>
+    
+    <div class="status">
+      <span class="status-dot"></span>
+      API Online
+    </div>
+
+    <div class="links">
+      <div class="link-group">
+        <div class="link-title">Documentation</div>
+        <a href="/api-docs">
+          <span>📚</span> Swagger Documentation
+          <span class="arrow">→</span>
+        </a>
+        <a href="/api-docs.json">
+          <span>📄</span> OpenAPI Specification
+          <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="link-group">
+        <div class="link-title">Quick Links</div>
+        <a href="/health">
+          <span>❤️</span> Health Check
+          <span class="arrow">→</span>
+        </a>
+        <a href="https://ebrecho.com.br" target="_blank">
+          <span>🌐</span> Main Website
+          <span class="arrow">→</span>
+        </a>
+      </div>
+
+      <div class="link-group">
+        <div class="link-title">Resources</div>
+        <a href="https://github.com/fvcoelho/ebrecho-api" target="_blank">
+          <span>💻</span> GitHub Repository
+          <span class="arrow">→</span>
+        </a>
+        <a href="mailto:support@ebrecho.com.br">
+          <span>📧</span> Contact Support
+          <span class="arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="info">
+      <div class="info-item">
+        <span class="info-label">Version</span>
+        <span class="info-value">1.0.1</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Environment</span>
+        <span class="info-value">${process.env.NODE_ENV || 'development'}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Base URL</span>
+        <span class="info-value">${baseUrl}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">API Endpoints</span>
+        <span class="info-value">22 documented</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2024 eBrecho. All rights reserved.</p>
+      <p style="margin-top: 10px;">
+        Built by <a href="pegue.la">pegue.app</a> with ❤️ using Node.js, Express & Prisma
+      </p>
+    </div>
+  </div>
+</body>
+</html>`;
+  
+  res.setHeader('Content-Type', 'text/html');
+  res.send(html);
+});
+
 // Health check route
 app.get('/health', async (req, res) => {
   console.log('Health check called');
